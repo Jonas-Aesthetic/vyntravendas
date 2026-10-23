@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vyntra · Painel de Vendas</title>
+<style>
+:root{color-scheme:light;--bg:#fff;--card:#fff;--tx:#0b1b3a;--mu:#64748b;--bd:#edf1f8;--b:#1d4ed8;--b2:#3b82f6;--bl:#f0f5ff;--ok:#059669;--wa:#d97706;--ko:#64748b;--rd:#e11d48;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0a1120;--card:#101a30;--tx:#e6ecf8;--mu:#94a3c0;--bd:#1e2b47;--bl:#14264d;--b:#4f83f5;--b2:#6ea0ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 Inter,"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;display:flex;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+.sb{width:232px;background:var(--card);border-right:1px solid var(--bd);padding:22px 16px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh;flex:none;z-index:10}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;letter-spacing:-.02em}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--b),var(--b2));display:grid;place-items:center}
+nav{display:flex;flex-direction:column;gap:4px}
+nav button{background:none;border:0;text-align:left;padding:10px 12px;border-radius:10px;color:var(--mu);cursor:pointer;font-weight:500}
+nav button.on{background:var(--bl);color:var(--b);font-weight:600}
+.goal{margin-top:auto;background:var(--bl);border-radius:14px;padding:14px}
+.goal small{color:var(--mu)}.goal b{display:block;font-size:20px;margin:2px 0 8px}
+.bar{height:8px;background:var(--bd);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--b),var(--b2));border-radius:9px}
+main{flex:1;min-width:0;padding:26px 30px 40px;max-width:1280px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+h1{margin:0;font-size:24px;letter-spacing:-.02em}header p{margin:2px 0 0;color:var(--mu)}
+.act{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.seg{display:flex;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:8px;cursor:pointer;color:var(--mu);font-weight:500}
+.seg button.on{background:var(--b);color:#fff}
+.pri{background:var(--b);color:#fff;border:0;border-radius:10px;padding:9px 16px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(29,78,216,.25)}
+.sec{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px 14px;cursor:pointer}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;box-shadow:0 1px 2px rgba(11,27,58,.04)}
+.kpi span{color:var(--mu);font-size:12.5px;font-weight:500}.kpi b{display:block;font-size:26px;letter-spacing:-.02em;margin-top:4px}.kpi em{font-style:normal;font-size:12px;color:var(--b);background:var(--bl);padding:2px 8px;border-radius:20px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-bottom:14px}
+.c8{grid-column:span 8}.c4{grid-column:span 4}.c6{grid-column:span 6}
+@media(max-width:1000px){.c8,.c4,.c6{grid-column:span 12}}
+@media(max-width:760px){
+  body{flex-direction:column}
+  .sb{width:100%;height:auto;position:sticky;top:0;flex-direction:row;align-items:center;padding:12px 16px;border-right:0;border-bottom:1px solid var(--bd);gap:12px}
+  .goal{display:none}
+  nav{flex-direction:row;margin-left:auto}
+  main{padding:18px 14px 30px}
+}
+h3{margin:0 0 14px;font-size:15px}.hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.hd h3{margin:0}
+.lg{display:flex;gap:14px;color:var(--mu);font-size:12px}.lg i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}
+svg text{fill:var(--mu);font-size:11px}
+.fn{display:flex;flex-direction:column;gap:9px}.fn div{display:grid;grid-template-columns:96px 1fr 70px;align-items:center;gap:10px;font-size:13px}
+.fn .tr{background:var(--bl);border-radius:8px;height:26px}.fn .tr i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--b),var(--b2))}
+.fn b{text-align:right}
+.dn{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.dn ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;flex:1;min-width:130px}.dn li{display:flex;justify-content:space-between;gap:10px}.dn li i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px}
+.tw{-webkit-overflow-scrolling:touch;overflow-x:auto;max-width:100%}
+table{width:100%;border-collapse:collapse;min-width:680px}
+th{text-align:left;font-size:12px;color:var(--mu);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.bd{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.Quente{background:rgba(225,29,72,.12);color:var(--rd)}.Morno{background:rgba(217,119,6,.14);color:var(--wa)}.Frio{background:rgba(100,116,139,.16);color:var(--ko)}
+select,input{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:7px 10px;outline:0}
+input:focus,select:focus{border-color:var(--b2);box-shadow:0 0 0 3px var(--bl)}
+.tb{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.tb input{flex:1;min-width:180px}
+.rk{display:grid;gap:12px}.rk div{display:grid;grid-template-columns:70px 1fr auto;gap:10px;align-items:center}
+dialog{border:1px solid var(--bd);border-radius:18px;padding:22px;width:min(400px,92vw);background:var(--card);color:var(--tx)}
+dialog::backdrop{background:rgba(11,27,58,.45)}dialog label{display:block;font-size:12.5px;color:var(--mu);margin:12px 0 4px}dialog input,dialog select{width:100%}
+.ft{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.tag{font-size:11.5px;color:var(--mu);margin-top:18px;text-align:center}
+.btn-del{background:rgba(225,29,72,.1);color:var(--rd);border:1px solid rgba(225,29,72,.2);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:12px;font-weight:600}
+.btn-del:hover{background:var(--rd);color:#fff}
+.inp-td{padding:4px 8px;border:1px solid var(--bd);border-radius:6px;width:100%;background:var(--card)}
+</style>
+</head>
+<body>
+<aside class="sb">
+  <div class="brand"><div class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5l8 14 8-14"/></svg></div>Vyntra</div>
+  <nav><button class="on" data-v="ov">Visão geral</button><button data-v="ld">Leads</button></nav>
+  <div class="goal"><small>Meta mensal de receita</small><b id="gv">—</b><div class="bar"><i id="gb" style="width:0"></i></div><small id="gp"></small></div>
+</aside>
+<main>
+  <header>
+    <div><h1 id="ttl">Visão geral</h1><p id="sub">Acompanhe chamadas, respostas, vendas e qualificação em tempo real.</p></div>
+    <div class="act"><div class="seg" id="seg"><button data-p="7">7 dias</button><button data-p="30" class="on">30 dias</button></div><button class="pri" id="add">+ Novo lead</button></div>
+  </header>
+
+  <section id="ov">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid">
+      <div class="card c8"><div class="hd"><h3>Chamadas e vendas por dia</h3><div class="lg"><span><i style="background:var(--b2)"></i>Chamadas</span><span><i style="background:var(--ok)"></i>Vendas</span></div></div><div id="chart"></div></div>
+      <div class="card c4"><h3>Qualificação dos leads</h3><div class="dn" id="dn"></div></div>
+    </div>
+    <div class="grid">
+      <div class="card c6"><h3>Funil de vendas</h3><div class="fn" id="fn"></div></div>
+      <div class="card c6"><h3>Desempenho por origem</h3><div class="tw"><table id="org"></table></div></div>
+    </div>
+    <div class="grid">
+      <div class="card c12" style="grid-column:span 12"><h3>Ranking de vendedores</h3><div class="rk" id="rk"></div></div>
+    </div>
+  </section>
+
+  <section id="ld" hidden>
+    <div class="card">
+      <div class="tb"><input id="q" placeholder="Buscar lead por nome…"><select id="fs"><option value="">Todos os status</option></select><select id="fq"><option value="">Toda qualificação</option><option>Quente</option><option>Morno</option><option>Frio</option></select><button class="sec" id="rs">Restaurar exemplos</button></div>
+      <div class="tw"><table id="tbl"></table></div>
+    </div>
+  </section>
+  <div class="tag">Dados salvos automaticamente neste navegador · Vyntra</div>
+</main>
+
+<dialog id="dlg">
+  <h3 style="font-size:18px;margin:0">Novo lead</h3>
+  <label>Nome</label><input id="n_nome" placeholder="Nome do lead">
+  <label>Origem</label><select id="n_org"></select>
+  <label>Qualificação</label><select id="n_q"><option>Quente</option><option selected>Morno</option><option>Frio</option></select>
+  <label>Status</label><select id="n_st"></select>
+  <label>Valor potencial (R$)</label><input id="n_val" type="number" value="3000" min="0">
+  <label>Responsável</label><select id="n_sel"></select>
+  <div class="ft"><button class="sec" id="n_c">Cancelar</button><button class="pri" id="n_s">Salvar lead</button></div>
+</dialog>
+
+<script>
+const $=s=>document.querySelector(s),DAY=864e5,META=120000;
+const ST=["Novo","Chamado","Respondeu","Qualificado","Venda","Perdido"],OR=["Instagram","Google Ads","Indicação","WhatsApp","LinkedIn","Site"],SE=["Ana","Bruno","Carla","Diego"];
+const brl=n=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
+const pct=(a,b)=>b?Math.round(a/b*100):0;
+let P=30,L=[];
+function gen(){let s=11;const r=()=>(s=s*16807%2147483647)/2147483647;
+ const F=["Marcos","Julia","Rafael","Beatriz","Lucas","Camila","Thiago","Fernanda","Gustavo","Larissa","Pedro","Mariana","Felipe","Amanda","Rodrigo","Patrícia"],S=["Almeida","Souza","Lima","Costa","Rocha","Dias","Pires","Nunes"];
+ return Array.from({length:72},(_,i)=>{const x=r(),st=x<.1?"Novo":x<.26?"Chamado":x<.46?"Respondeu":x<.64?"Qualificado":x<.86?"Venda":"Perdido";
+ const hot=st=="Venda"||st=="Qualificado",y=r(),q=hot?(y<.65?"Quente":"Morno"):(y<.25?"Quente":y<.6?"Morno":"Frio");
+ return{id:Date.now()+i,nome:F[Math.floor(r()*F.length)]+" "+S[Math.floor(r()*S.length)],org:OR[Math.floor(r()*OR.length)],q,st,val:Math.round((1500+r()*8500)/100)*100,sel:SE[Math.floor(r()*4)],ts:Date.now()-Math.floor(r()*30)*DAY-Math.floor(r()*DAY/2)}})}
+function load(){try{const j=localStorage.getItem("vyntra_leads");if(j){L=JSON.parse(j);return}}catch(e){}L=gen()}
+function save(){try{localStorage.setItem("vyntra_leads",JSON.stringify(L))}catch(e){}}
+const win=()=>L.filter(l=>l.ts>=Date.now()-P*DAY);
+const called=a=>a.filter(l=>l.st!="Novo"),ans=a=>a.filter(l=>["Respondeu","Qualificado","Venda"].includes(l.st)),sold=a=>a.filter(l=>l.st=="Venda");
+
+function kpis(a){const c=called(a),r=ans(a),v=sold(a),rev=v.reduce((s,l)=>s+l.val,0);
+ const k=[["Leads captados",a.length,"total"],["Chamadas feitas",c.length,pct(c.length,a.length)+"% dos leads"],["Respondidas",r.length,pct(r.length,c.length)+"% de resposta"],["Vendas",v.length,pct(v.length,a.length)+"% conversão"],["Receita",brl(rev),"fechada"],["Ticket médio",brl(v.length?rev/v.length:0),"por venda"]];
+ $("#kpis").innerHTML=k.map(x=>`<div class="card kpi"><span>${x[0]}</span><b>${x[1]}</b><em>${x[2]}</em></div>`).join("");
+ const mr=L.filter(l=>l.st=="Venda"&&l.ts>=Date.now()-30*DAY).reduce((s,l)=>s+l.val,0);
+ $("#gv").textContent=brl(mr);$("#gb").style.width=Math.min(100,pct(mr,META))+"%";$("#gp").textContent=pct(mr,META)+"% de "+brl(META)}
+
+function chart(a){const W=640,H=230,M=30,n=P,c=Array(n).fill(0),v=Array(n).fill(0);
+ a.forEach(l=>{const i=Math.floor((Date.now()-l.ts)/DAY);if(i<n){if(l.st!="Novo")c[i]++;if(l.st=="Venda")v[i]++}});
+ c.reverse();v.reverse();const mx=Math.max(4,Math.ceil(Math.max(...c)/2)*2),X=i=>M+i*(W-M-10)/(n-1),Y=x=>H-M-x/mx*(H-M-14);
+ const pt=s=>s.map((x,i)=>X(i).toFixed(1)+","+Y(x).toFixed(1)).join(" ");
+ let g="";for(let i=0;i<=4;i++){const y=Y(mx*i/4);g+=`<line x1="${M}" x2="${W-10}" y1="${y}" y2="${y}" stroke="var(--bd)"/><text x="4" y="${y+4}">${Math.round(mx*i/4)}</text>`}
+ const dl=i=>{const d=new Date(Date.now()-(n-1-i)*DAY);return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})};
+ const xl=[0,Math.floor((n-1)/2),n-1].map((i,k)=>`<text x="${X(i)}" y="${H-8}" text-anchor="${k==0?"start":k==2?"end":"middle"}">${dl(i)}</text>`).join("");
+ $("#chart").innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Gráfico de chamadas e vendas"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--b2)" stop-opacity=".28"/><stop offset="1" stop-color="var(--b2)" stop-opacity="0"/></linearGradient></defs>${g}${xl}<polygon fill="url(#ga)" points="${X(0)},${Y(0)} ${pt(c)} ${X(n-1)},${Y(0)}"/><polyline fill="none" stroke="var(--b2)" stroke-width="2.5" stroke-linejoin="round" points="${pt(c)}"/><polyline fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-linejoin="round" points="${pt(v)}"/></svg>`}
+
+function donut(a){const C=["Quente","Morno","Frio"],col={Quente:"var(--rd)",Morno:"var(--wa)",Frio:"var(--ko)"},t=a.length||1;let off=0,seg="";
+ C.forEach(k=>{const n=a.filter(l=>l.q==k).length,d=n/t*251.3;seg+=`<circle r="40" cx="60" cy="60" fill="none" stroke="${col[k]}" stroke-width="16" stroke-dasharray="${d} ${251.3-d}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"/>`;off+=d});
+ $("#dn").innerHTML=`<svg width="120" height="120" viewBox="0 0 120 120"><circle r="40" cx="60" cy="60" fill="none" stroke="var(--bd)" stroke-width="16"/>${seg}<text x="60" y="58" text-anchor="middle" style="font-size:20px;font-weight:700;fill:var(--tx)">${a.length}</text><text x="60" y="74" text-anchor="middle">leads</text></svg><ul>${C.map(k=>{const n=a.filter(l=>l.q==k).length;return`<li><span><i style="background:${col[k]}"></i>${k}</span><b>${n} · ${pct(n,a.length)}%</b></li>`}).join("")}</ul>`}
+
+function funnel(a){const q=a.filter(l=>["Qualificado","Venda"].includes(l.st)),s=[["Leads",a.length],["Chamados",called(a).length],["Responderam",ans(a).length],["Qualificados",q.length],["Vendas",sold(a).length]],m=a.length||1;
+ $("#fn").innerHTML=s.map(x=>`<div><span>${x[0]}</span><span class="tr"><i style="width:${Math.max(3,x[1]/m*100)}%"></i></span><b>${x[1]}</b></div>`).join("")}
+
+function origins(a){$("#org").innerHTML="<tr><th>Origem</th><th>Leads</th><th>Respostas</th><th>Vendas</th><th>Conversão</th><th>Receita</th></tr>"+OR.map(o=>{const x=a.filter(l=>l.org==o),v=sold(x);return{o,x,v,rev:v.reduce((s,l)=>s+l.val,0)}}).sort((p,q)=>q.rev-p.rev).map(r=>`<tr><td><b>${r.o}</b></td><td>${r.x.length}</td><td>${ans(r.x).length}</td><td>${r.v.length}</td><td><span class="bd Quente" style="background:var(--bl);color:var(--b)">${pct(r.v.length,r.x.length)}%</span></td><td>${brl(r.rev)}</td></tr>`).join("")}
+
+function ranking(a){const r=SE.map(n=>{const v=sold(a.filter(l=>l.sel==n));return{n,v:v.length,rev:v.reduce((s,l)=>s+l.val,0)}}).sort((x,y)=>y.rev-x.rev),m=r[0].rev||1;
+ $("#rk").innerHTML=r.map((x,i)=>`<div><b>${i+1}. ${x.n}</b><div class="bar" style="display:block"><i style="width:${x.rev/m*100}%"></i></div><span>${x.v} vendas · <b>${brl(x.rev)}</b></span></div>`).join("")}
+
+function table(){const q=$("#q").value.toLowerCase(),fs=$("#fs").value,fq=$("#fq").value;
+ const a=L.filter(l=>(!q||l.nome.toLowerCase().includes(q))&&(!fs||l.st==fs)&&(!fq||l.q==fq)).sort((x,y)=>y.ts-x.ts);
+ $("#tbl").innerHTML="<tr><th>Lead</th><th>Origem</th><th>Qualificação</th><th>Status</th><th>Valor (R$)</th><th>Responsável</th><th>Ações</th></tr>"+(a.map(l=>`<tr>
+   <td><input class="inp-td" value="${l.nome}" data-id="${l.id}" data-k="nome"></td>
+   <td><select data-id="${l.id}" data-k="org">${OR.map(o=>`<option${o==l.org?" selected":""}>${o}</option>`).join("")}</select></td>
+   <td><select data-id="${l.id}" data-k="q">${["Quente","Morno","Frio"].map(q=>`<option${q==l.q?" selected":""}>${q}</option>`).join("")}</select></td>
+   <td><select data-id="${l.id}" data-k="st">${ST.map(s=>`<option${s==l.st?" selected":""}>${s}</option>`).join("")}</select></td>
+   <td><input class="inp-td" type="number" style="width:90px" value="${l.val}" data-id="${l.id}" data-k="val"></td>
+   <td><select data-id="${l.id}" data-k="sel">${SE.map(s=>`<option${s==l.sel?" selected":""}>${s}</option>`).join("")}</select></td>
+   <td><button class="btn-del" data-del="${l.id}">Excluir</button></td>
+ </tr>`).join("")||'<tr><td colspan="7" style="color:var(--mu)">Nenhum lead encontrado.</td></tr>')}
+
+function render(){const a=win();kpis(a);chart(a);donut(a);funnel(a);origins(a);ranking(a);table()}
+function view(v){$("#ov").hidden=v!="ov";$("#ld").hidden=v!="ld";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v==v));
+ $("#ttl").textContent=v=="ov"?"Visão geral":"Leads";$("#sub").textContent=v=="ov"?"Acompanhe chamadas, respostas, vendas e qualificação em tempo real.":"Gerencie cada lead e atualize o status do atendimento."}
+
+load();
+$("#fs").innerHTML+=ST.map(s=>`<option>${s}</option>`).join("");
+$("#n_org").innerHTML=OR.map(o=>`<option>${o}</option>`).join("");
+$("#n_st").innerHTML=ST.map(s=>`<option>${s}</option>`).join("");
+$("#n_sel").innerHTML=SE.map(s=>`<option>${s}</option>`).join("");
+
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>view(b.dataset.v));
+document.querySelectorAll("#seg button").forEach(b=>b.onclick=()=>{P=+b.dataset.p;document.querySelectorAll("#seg button").forEach(x=>x.classList.toggle("on",x==b));render()});
+["#q","#fs","#fq"].forEach(s=>$(s).oninput=table);
+
+// Edição e remoção na tabela
+$("#tbl").addEventListener("change", e => {
+  const id = e.target.dataset.id, k = e.target.dataset.k;
+  if (!id || !k) return;
+  const lead = L.find(l => l.id == id);
+  if (lead) {
+    lead[k] = k === "val" ? (+e.target.value || 0) : e.target.value;
+    save();
+    render();
+  }
+});
+
+$("#tbl").addEventListener("click", e => {
+  const delId = e.target.dataset.del;
+  if (delId) {
+    L = L.filter(l => l.id != delId);
+    save();
+    render();
+  }
+});
+
+$("#add").onclick=()=>$("#dlg").showModal();
+$("#n_c").onclick=()=>$("#dlg").close();
+$("#n_s").onclick=()=>{
+  const n=$("#n_nome").value.trim();
+  if(!n){$("#n_nome").focus();return}
+  L.push({
+    id:Date.now(),
+    nome:n,
+    org:$("#n_org").value,
+    q:$("#n_q").value,
+    st:$("#n_st").value,
+    val:+$("#n_val").value||0,
+    sel:$("#n_sel").value,
+    ts:Date.now()
+  });
+  save();
+  $("#n_nome").value="";
+  $("#dlg").close();
+  render();
+};
+
+$("#rs").onclick=()=>{
+  if(confirm("Deseja restaurar os leads de exemplo originais?")){
+    L=gen();
+    save();
+    render();
+  }
+};
+
+render();
+</script>
+</body>
+</html>
