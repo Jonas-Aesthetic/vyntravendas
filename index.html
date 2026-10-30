@@ -67,7 +67,7 @@ dialog::backdrop{background:rgba(11,27,58,.45)}dialog label{display:block;font-s
 .btn-del{background:rgba(225,29,72,.1);color:var(--rd);border:1px solid rgba(225,29,72,.2);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:12px;font-weight:600}
 .btn-del:hover{background:var(--rd);color:#fff}
 .inp-td{padding:4px 8px;border:1px solid var(--bd);border-radius:6px;width:100%;background:var(--card)}
-</style>
+.sli{display:flex;gap:8px;margin-bottom:8px}.sli input{flex:1}dialog{max-height:92vh;overflow:auto}#tbl{min-width:1180px}</style>
 </head>
 <body>
 <aside class="sb">
@@ -108,18 +108,23 @@ dialog::backdrop{background:rgba(11,27,58,.45)}dialog label{display:block;font-s
 <dialog id="dlg">
   <h3 style="font-size:18px;margin:0">Novo lead</h3>
   <label>Nome</label><input id="n_nome" placeholder="Nome do lead">
+  <label>Telefone / WhatsApp</label><input id="n_tel" type="tel" placeholder="(00) 00000-0000">
+  <label>Rede social</label><input id="n_rs" placeholder="@usuario ou link do perfil">
+  <label>Endereço</label><input id="n_end" placeholder="Rua, número, bairro, cidade">
   <label>Origem</label><select id="n_org"></select>
   <label>Qualificação</label><select id="n_q"><option>Quente</option><option selected>Morno</option><option>Frio</option></select>
   <label>Status</label><select id="n_st"></select>
   <label>Valor potencial (R$)</label><input id="n_val" type="number" value="3000" min="0">
-  <label>Responsável</label><select id="n_sel"></select>
+  <label>Responsável <button type="button" class="sec" id="gs" style="padding:2px 10px;margin-left:8px;font-size:12px">Gerenciar</button></label><select id="n_sel"></select>
   <div class="ft"><button class="sec" id="n_c">Cancelar</button><button class="pri" id="n_s">Salvar lead</button></div>
 </dialog>
 
+<dialog id="dsl"><h3 style="font-size:18px;margin:0">Responsáveis</h3><small style="color:var(--mu)">Renomear atualiza os leads dele. Ao remover, os leads atuais mantêm o nome.</small><div id="sl" style="margin-top:12px"></div><div class="sli"><input id="sl_new" placeholder="Novo responsável"><button class="sec" id="sl_add">Adicionar</button></div><div class="ft"><button class="sec" id="sl_c">Cancelar</button><button class="pri" id="sl_s">Salvar</button></div></dialog>
 <script>
 const $=s=>document.querySelector(s),DAY=864e5,META=120000;
-const ST=["Novo","Chamado","Respondeu","Qualificado","Venda","Perdido"],OR=["Instagram","Google Ads","Indicação","WhatsApp","LinkedIn","Site"],SE=["Ana","Bruno","Carla","Diego"];
+const ST=["Novo","Chamado","Respondeu","Qualificado","Venda","Perdido"],OR=["Instagram","Google Ads","Indicação","WhatsApp","LinkedIn","Site"];let SE=["Ana","Bruno","Carla","Diego"];
 const brl=n=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
+const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 let P=30,L=[];
 function gen(){let s=11;const r=()=>(s=s*16807%2147483647)/2147483647;
@@ -127,12 +132,13 @@ function gen(){let s=11;const r=()=>(s=s*16807%2147483647)/2147483647;
  return Array.from({length:72},(_,i)=>{const x=r(),st=x<.1?"Novo":x<.26?"Chamado":x<.46?"Respondeu":x<.64?"Qualificado":x<.86?"Venda":"Perdido";
  const hot=st=="Venda"||st=="Qualificado",y=r(),q=hot?(y<.65?"Quente":"Morno"):(y<.25?"Quente":y<.6?"Morno":"Frio");
  return{id:Date.now()+i,nome:F[Math.floor(r()*F.length)]+" "+S[Math.floor(r()*S.length)],org:OR[Math.floor(r()*OR.length)],q,st,val:Math.round((1500+r()*8500)/100)*100,sel:SE[Math.floor(r()*4)],ts:Date.now()-Math.floor(r()*30)*DAY-Math.floor(r()*DAY/2)}})}
+function fillSel(){$("#n_sel").innerHTML=SE.map(s=>`<option>${esc(s)}</option>`).join("")}
 const KEY="vyntra_leads";let PEND=0;
 const stat=ok=>{$("#tg").textContent=ok?"Dados compartilhados e salvos automaticamente · todos veem as mesmas informações · Vyntra":"Sem conexão com o servidor · tentando novamente…"};
 async function api(m,b){const r=await fetch("/api/leads",{method:m,headers:{"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error("http "+r.status);return r.json()}
-async function sync(first){if(PEND)return;try{const j=await api("GET");if(j.seed){let x=null;try{x=JSON.parse(localStorage.getItem(KEY))}catch(e){}L=Array.isArray(x)&&x.length?x:gen();await api("POST",{action:"seed",leads:L})}else L=j.leads;stat(true);render()}catch(e){stat(false)}}
+async function sync(first){if(PEND)return;try{const j=await api("GET");if(j.seed){let x=null;try{x=JSON.parse(localStorage.getItem(KEY))}catch(e){}L=Array.isArray(x)&&x.length?x:gen();await api("POST",{action:"seed",leads:L})}else L=j.leads;if(Array.isArray(j.sellers)&&j.sellers.length){SE=j.sellers;fillSel()}stat(true);render()}catch(e){stat(false)}}
 async function push(a,b){PEND++;try{await api("POST",{action:a,...b});stat(true)}catch(e){stat(false)}finally{PEND--}}
-const busy=()=>$("#dlg").open||/INPUT|SELECT/.test(document.activeElement.tagName);
+const busy=()=>$("#dlg").open||$("#dsl").open||/INPUT|SELECT/.test(document.activeElement.tagName);
 setInterval(()=>{if(!document.hidden&&!busy())sync()},5000);
 const win=()=>L.filter(l=>l.ts>=Date.now()-P*DAY);
 const called=a=>a.filter(l=>l.st!="Novo"),ans=a=>a.filter(l=>["Respondeu","Qualificado","Venda"].includes(l.st)),sold=a=>a.filter(l=>l.st=="Venda");
@@ -161,20 +167,23 @@ function funnel(a){const q=a.filter(l=>["Qualificado","Venda"].includes(l.st)),s
 
 function origins(a){$("#org").innerHTML="<tr><th>Origem</th><th>Leads</th><th>Respostas</th><th>Vendas</th><th>Conversão</th><th>Receita</th></tr>"+OR.map(o=>{const x=a.filter(l=>l.org==o),v=sold(x);return{o,x,v,rev:v.reduce((s,l)=>s+l.val,0)}}).sort((p,q)=>q.rev-p.rev).map(r=>`<tr><td><b>${r.o}</b></td><td>${r.x.length}</td><td>${ans(r.x).length}</td><td>${r.v.length}</td><td><span class="bd Quente" style="background:var(--bl);color:var(--b)">${pct(r.v.length,r.x.length)}%</span></td><td>${brl(r.rev)}</td></tr>`).join("")}
 
-function ranking(a){const r=SE.map(n=>{const v=sold(a.filter(l=>l.sel==n));return{n,v:v.length,rev:v.reduce((s,l)=>s+l.val,0)}}).sort((x,y)=>y.rev-x.rev),m=r[0].rev||1;
+function ranking(a){const r=[...new Set([...SE,...L.map(l=>l.sel)])].filter(Boolean).map(n=>{const v=sold(a.filter(l=>l.sel==n));return{n,v:v.length,rev:v.reduce((s,l)=>s+l.val,0)}}).sort((x,y)=>y.rev-x.rev),m=r[0].rev||1;
  $("#rk").innerHTML=r.map((x,i)=>`<div><b>${i+1}. ${x.n}</b><div class="bar" style="display:block"><i style="width:${x.rev/m*100}%"></i></div><span>${x.v} vendas · <b>${brl(x.rev)}</b></span></div>`).join("")}
 
 function table(){const q=$("#q").value.toLowerCase(),fs=$("#fs").value,fq=$("#fq").value;
- const a=L.filter(l=>(!q||l.nome.toLowerCase().includes(q))&&(!fs||l.st==fs)&&(!fq||l.q==fq)).sort((x,y)=>y.ts-x.ts);
- $("#tbl").innerHTML="<tr><th>Lead</th><th>Origem</th><th>Qualificação</th><th>Status</th><th>Valor (R$)</th><th>Responsável</th><th>Ações</th></tr>"+(a.map(l=>`<tr>
-   <td><input class="inp-td" value="${l.nome}" data-id="${l.id}" data-k="nome"></td>
+ const a=L.filter(l=>(!q||[l.nome,l.tel,l.rs,l.end].join(" ").toLowerCase().includes(q))&&(!fs||l.st==fs)&&(!fq||l.q==fq)).sort((x,y)=>y.ts-x.ts);
+ $("#tbl").innerHTML="<tr><th>Lead</th><th>Origem</th><th>Qualificação</th><th>Status</th><th>Valor (R$)</th><th>Responsável</th><th>Telefone</th><th>Rede social</th><th>Endereço</th><th>Ações</th></tr>"+(a.map(l=>`<tr>
+   <td><input class="inp-td" value="${esc(l.nome)}" data-id="${l.id}" data-k="nome"></td>
    <td><select data-id="${l.id}" data-k="org">${OR.map(o=>`<option${o==l.org?" selected":""}>${o}</option>`).join("")}</select></td>
    <td><select data-id="${l.id}" data-k="q">${["Quente","Morno","Frio"].map(q=>`<option${q==l.q?" selected":""}>${q}</option>`).join("")}</select></td>
    <td><select data-id="${l.id}" data-k="st">${ST.map(s=>`<option${s==l.st?" selected":""}>${s}</option>`).join("")}</select></td>
    <td><input class="inp-td" type="number" style="width:90px" value="${l.val}" data-id="${l.id}" data-k="val"></td>
-   <td><select data-id="${l.id}" data-k="sel">${SE.map(s=>`<option${s==l.sel?" selected":""}>${s}</option>`).join("")}</select></td>
+   <td><select data-id="${l.id}" data-k="sel">${[...new Set([...SE,l.sel])].filter(Boolean).map(s=>`<option${s==l.sel?" selected":""}>${esc(s)}</option>`).join("")}</select></td>
+   <td><input class="inp-td" style="width:140px" placeholder="(00) 00000-0000" value="${esc(l.tel)}" data-id="${l.id}" data-k="tel"></td>
+   <td><input class="inp-td" style="width:150px" placeholder="@usuario ou link" value="${esc(l.rs)}" data-id="${l.id}" data-k="rs"></td>
+   <td><input class="inp-td" style="width:220px" placeholder="Rua, número, cidade" value="${esc(l.end)}" data-id="${l.id}" data-k="end"></td>
    <td><button class="btn-del" data-del="${l.id}">Excluir</button></td>
- </tr>`).join("")||'<tr><td colspan="7" style="color:var(--mu)">Nenhum lead encontrado.</td></tr>')}
+ </tr>`).join("")||'<tr><td colspan="10" style="color:var(--mu)">Nenhum lead encontrado.</td></tr>')}
 
 function render(){const a=win();kpis(a);chart(a);donut(a);funnel(a);origins(a);ranking(a);table()}
 function view(v){$("#ov").hidden=v!="ov";$("#ld").hidden=v!="ld";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v==v));
@@ -184,7 +193,7 @@ sync(true);
 $("#fs").innerHTML+=ST.map(s=>`<option>${s}</option>`).join("");
 $("#n_org").innerHTML=OR.map(o=>`<option>${o}</option>`).join("");
 $("#n_st").innerHTML=ST.map(s=>`<option>${s}</option>`).join("");
-$("#n_sel").innerHTML=SE.map(s=>`<option>${s}</option>`).join("");
+fillSel();
 
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>view(b.dataset.v));
 document.querySelectorAll("#seg button").forEach(b=>b.onclick=()=>{P=+b.dataset.p;document.querySelectorAll("#seg button").forEach(x=>x.classList.toggle("on",x==b));render()});
@@ -211,6 +220,18 @@ $("#tbl").addEventListener("click", e => {
   }
 });
 
+let SD=[];
+function drawSl(){$("#sl").innerHTML=SD.map((x,i)=>`<div class="sli"><input data-i="${i}" value="${esc(x.n)}"><button class="btn-del" data-rm="${i}">Remover</button></div>`).join("")||"<small>Nenhum responsável</small>"}
+$("#gs").onclick=()=>{SD=SE.map(n=>({o:n,n}));drawSl();$("#dsl").showModal()};
+$("#sl").addEventListener("input",e=>{const i=e.target.dataset.i;if(i!=null)SD[i].n=e.target.value});
+$("#sl").addEventListener("click",e=>{const i=e.target.dataset.rm;if(i!=null){SD.splice(+i,1);drawSl()}});
+$("#sl_add").onclick=()=>{const v=$("#sl_new").value.trim();if(v){SD.push({o:null,n:v});$("#sl_new").value="";drawSl()}};
+$("#sl_c").onclick=()=>$("#dsl").close();
+$("#sl_s").onclick=()=>{const nm=SD.map(x=>x.n.trim()).filter(Boolean);
+ if(!nm.length||new Set(nm.map(x=>x.toLowerCase())).size!=nm.length){alert("Informe ao menos um responsável, sem nomes repetidos.");return}
+ const ren={};SD.forEach(x=>{if(x.o&&x.n.trim()&&x.o!=x.n.trim())ren[x.o]=x.n.trim()});
+ const ch=[];L.forEach(l=>{if(ren[l.sel]){l.sel=ren[l.sel];ch.push(l)}});
+ SE=nm;fillSel();push("sellers",{list:SE});if(ch.length)push("bulk",{leads:ch});$("#dsl").close();render()};
 $("#add").onclick=()=>$("#dlg").showModal();
 $("#n_c").onclick=()=>$("#dlg").close();
 $("#n_s").onclick=()=>{
@@ -224,10 +245,11 @@ $("#n_s").onclick=()=>{
     st:$("#n_st").value,
     val:+$("#n_val").value||0,
     sel:$("#n_sel").value,
+    tel:$("#n_tel").value.trim(),rs:$("#n_rs").value.trim(),end:$("#n_end").value.trim(),
     ts:Date.now()
   });
   push("upsert",{lead:L[L.length-1]});
-  $("#n_nome").value="";
+  $("#n_nome").value="";$("#n_tel").value="";$("#n_rs").value="";$("#n_end").value="";
   $("#dlg").close();
   render();
 };
