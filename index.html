@@ -173,7 +173,7 @@ function ranking(a){const r=[...new Set([...SE,...L.map(l=>l.sel)])].filter(Bool
 function table(){const q=$("#q").value.toLowerCase(),fs=$("#fs").value,fq=$("#fq").value;
  const a=L.filter(l=>(!q||[l.nome,l.tel,l.rs,l.end].join(" ").toLowerCase().includes(q))&&(!fs||l.st==fs)&&(!fq||l.q==fq)).sort((x,y)=>y.ts-x.ts);
  $("#tbl").innerHTML="<tr><th>Lead</th><th>Origem</th><th>Qualificação</th><th>Status</th><th>Valor (R$)</th><th>Responsável</th><th>Telefone</th><th>Rede social</th><th>Endereço</th><th>Ações</th></tr>"+(a.map(l=>`<tr>
-   <td><input class="inp-td" style="min-width:220px;font-weight:600" value="${esc(l.nome)}" data-id="${l.id}" data-k="nome"></td>
+   <td><input class="inp-td" style="min-width:260px;field-sizing:content;font-weight:600" value="${esc(l.nome)}" data-id="${l.id}" data-k="nome"></td>
    <td><select data-id="${l.id}" data-k="org">${OR.map(o=>`<option${o==l.org?" selected":""}>${o}</option>`).join("")}</select></td>
    <td><select data-id="${l.id}" data-k="q">${["Quente","Morno","Frio"].map(q=>`<option${q==l.q?" selected":""}>${q}</option>`).join("")}</select></td>
    <td><select data-id="${l.id}" data-k="st">${ST.map(s=>`<option${s==l.st?" selected":""}>${s}</option>`).join("")}</select></td>
