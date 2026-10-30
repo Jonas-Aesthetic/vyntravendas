@@ -102,7 +102,7 @@ dialog::backdrop{background:rgba(11,27,58,.45)}dialog label{display:block;font-s
       <div class="tw"><table id="tbl"></table></div>
     </div>
   </section>
-  <div class="tag">Dados salvos automaticamente neste navegador · Vyntra</div>
+  <div class="tag" id="tg">Conectando…</div>
 </main>
 
 <dialog id="dlg">
@@ -127,8 +127,13 @@ function gen(){let s=11;const r=()=>(s=s*16807%2147483647)/2147483647;
  return Array.from({length:72},(_,i)=>{const x=r(),st=x<.1?"Novo":x<.26?"Chamado":x<.46?"Respondeu":x<.64?"Qualificado":x<.86?"Venda":"Perdido";
  const hot=st=="Venda"||st=="Qualificado",y=r(),q=hot?(y<.65?"Quente":"Morno"):(y<.25?"Quente":y<.6?"Morno":"Frio");
  return{id:Date.now()+i,nome:F[Math.floor(r()*F.length)]+" "+S[Math.floor(r()*S.length)],org:OR[Math.floor(r()*OR.length)],q,st,val:Math.round((1500+r()*8500)/100)*100,sel:SE[Math.floor(r()*4)],ts:Date.now()-Math.floor(r()*30)*DAY-Math.floor(r()*DAY/2)}})}
-function load(){try{const j=localStorage.getItem("vyntra_leads");if(j){L=JSON.parse(j);return}}catch(e){}L=gen()}
-function save(){try{localStorage.setItem("vyntra_leads",JSON.stringify(L))}catch(e){}}
+const KEY="vyntra_leads";let PEND=0;
+const stat=ok=>{$("#tg").textContent=ok?"Dados compartilhados e salvos automaticamente · todos veem as mesmas informações · Vyntra":"Sem conexão com o servidor · tentando novamente…"};
+async function api(m,b){const r=await fetch("/api/leads",{method:m,headers:{"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error("http "+r.status);return r.json()}
+async function sync(first){if(PEND)return;try{const j=await api("GET");if(j.seed){let x=null;try{x=JSON.parse(localStorage.getItem(KEY))}catch(e){}L=Array.isArray(x)&&x.length?x:gen();await api("POST",{action:"seed",leads:L})}else L=j.leads;stat(true);render()}catch(e){stat(false)}}
+async function push(a,b){PEND++;try{await api("POST",{action:a,...b});stat(true)}catch(e){stat(false)}finally{PEND--}}
+const busy=()=>$("#dlg").open||/INPUT|SELECT/.test(document.activeElement.tagName);
+setInterval(()=>{if(!document.hidden&&!busy())sync()},5000);
 const win=()=>L.filter(l=>l.ts>=Date.now()-P*DAY);
 const called=a=>a.filter(l=>l.st!="Novo"),ans=a=>a.filter(l=>["Respondeu","Qualificado","Venda"].includes(l.st)),sold=a=>a.filter(l=>l.st=="Venda");
 
@@ -175,7 +180,7 @@ function render(){const a=win();kpis(a);chart(a);donut(a);funnel(a);origins(a);r
 function view(v){$("#ov").hidden=v!="ov";$("#ld").hidden=v!="ld";document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v==v));
  $("#ttl").textContent=v=="ov"?"Visão geral":"Leads";$("#sub").textContent=v=="ov"?"Acompanhe chamadas, respostas, vendas e qualificação em tempo real.":"Gerencie cada lead e atualize o status do atendimento."}
 
-load();
+sync(true);
 $("#fs").innerHTML+=ST.map(s=>`<option>${s}</option>`).join("");
 $("#n_org").innerHTML=OR.map(o=>`<option>${o}</option>`).join("");
 $("#n_st").innerHTML=ST.map(s=>`<option>${s}</option>`).join("");
@@ -192,7 +197,7 @@ $("#tbl").addEventListener("change", e => {
   const lead = L.find(l => l.id == id);
   if (lead) {
     lead[k] = k === "val" ? (+e.target.value || 0) : e.target.value;
-    save();
+    push("upsert",{lead});
     render();
   }
 });
@@ -201,7 +206,7 @@ $("#tbl").addEventListener("click", e => {
   const delId = e.target.dataset.del;
   if (delId) {
     L = L.filter(l => l.id != delId);
-    save();
+    push("delete",{id:delId});
     render();
   }
 });
@@ -221,7 +226,7 @@ $("#n_s").onclick=()=>{
     sel:$("#n_sel").value,
     ts:Date.now()
   });
-  save();
+  push("upsert",{lead:L[L.length-1]});
   $("#n_nome").value="";
   $("#dlg").close();
   render();
@@ -230,7 +235,7 @@ $("#n_s").onclick=()=>{
 $("#rs").onclick=()=>{
   if(confirm("Deseja restaurar os leads de exemplo originais?")){
     L=gen();
-    save();
+    push("reset",{leads:L});
     render();
   }
 };
