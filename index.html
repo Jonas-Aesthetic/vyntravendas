@@ -98,7 +98,7 @@ dialog::backdrop{background:rgba(11,27,58,.45)}dialog label{display:block;font-s
 
   <section id="ld" hidden>
     <div class="card">
-      <div class="tb"><input id="q" placeholder="Buscar lead por nome…"><select id="fs"><option value="">Todos os status</option></select><select id="fq"><option value="">Toda qualificação</option><option>Quente</option><option>Morno</option><option>Frio</option></select><button class="sec" id="rs">Restaurar exemplos</button></div>
+      <div class="tb"><input id="q" placeholder="Buscar por nome, telefone, rede social ou endereço…"><select id="fs"><option value="">Todos os status</option></select><select id="fq"><option value="">Toda qualificação</option><option>Quente</option><option>Morno</option><option>Frio</option></select><button class="sec" id="rs">Restaurar exemplos</button></div>
       <div class="tw"><table id="tbl"></table></div>
     </div>
   </section>
@@ -134,10 +134,10 @@ function gen(){let s=11;const r=()=>(s=s*16807%2147483647)/2147483647;
  return{id:Date.now()+i,nome:F[Math.floor(r()*F.length)]+" "+S[Math.floor(r()*S.length)],org:OR[Math.floor(r()*OR.length)],q,st,val:Math.round((1500+r()*8500)/100)*100,sel:SE[Math.floor(r()*4)],ts:Date.now()-Math.floor(r()*30)*DAY-Math.floor(r()*DAY/2)}})}
 function fillSel(){$("#n_sel").innerHTML=SE.map(s=>`<option>${esc(s)}</option>`).join("")}
 const KEY="vyntra_leads";let PEND=0;
-const stat=ok=>{$("#tg").textContent=ok?"Dados compartilhados e salvos automaticamente · todos veem as mesmas informações · Vyntra":"Sem conexão com o servidor · tentando novamente…"};
+const stat=ok=>{$("#tg").style.color=ok?"":"#e11d48";$("#tg").textContent=ok?"Dados compartilhados e salvos automaticamente · todos veem as mesmas informações · Vyntra":"Sem conexão com o servidor: os dados estão só neste navegador e NÃO são compartilhados. Confira se a pasta api e o banco estão publicados."};
 async function api(m,b){const r=await fetch("/api/leads",{method:m,headers:{"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error("http "+r.status);return r.json()}
-async function sync(first){if(PEND)return;try{const j=await api("GET");if(j.seed){let x=null;try{x=JSON.parse(localStorage.getItem(KEY))}catch(e){}L=Array.isArray(x)&&x.length?x:gen();await api("POST",{action:"seed",leads:L})}else L=j.leads;if(Array.isArray(j.sellers)&&j.sellers.length){SE=j.sellers;fillSel()}stat(true);render()}catch(e){stat(false)}}
-async function push(a,b){PEND++;try{await api("POST",{action:a,...b});stat(true)}catch(e){stat(false)}finally{PEND--}}
+async function sync(first){if(PEND)return;try{const j=await api("GET");if(j.seed){let x=null;try{x=JSON.parse(localStorage.getItem(KEY))}catch(e){}L=Array.isArray(x)&&x.length?x:gen();await api("POST",{action:"seed",leads:L})}else L=j.leads;if(Array.isArray(j.sellers)&&j.sellers.length){SE=j.sellers;fillSel()}stat(true);render()}catch(e){if(!L.length){try{L=JSON.parse(localStorage.getItem(KEY))||[]}catch(x){L=[]}render()}stat(false)}}
+async function push(a,b){try{localStorage.setItem(KEY,JSON.stringify(L))}catch(e){}PEND++;try{await api("POST",{action:a,...b});stat(true)}catch(e){stat(false)}finally{PEND--}}
 const busy=()=>$("#dlg").open||$("#dsl").open||/INPUT|SELECT/.test(document.activeElement.tagName);
 setInterval(()=>{if(!document.hidden&&!busy())sync()},5000);
 const win=()=>L.filter(l=>l.ts>=Date.now()-P*DAY);
@@ -173,7 +173,7 @@ function ranking(a){const r=[...new Set([...SE,...L.map(l=>l.sel)])].filter(Bool
 function table(){const q=$("#q").value.toLowerCase(),fs=$("#fs").value,fq=$("#fq").value;
  const a=L.filter(l=>(!q||[l.nome,l.tel,l.rs,l.end].join(" ").toLowerCase().includes(q))&&(!fs||l.st==fs)&&(!fq||l.q==fq)).sort((x,y)=>y.ts-x.ts);
  $("#tbl").innerHTML="<tr><th>Lead</th><th>Origem</th><th>Qualificação</th><th>Status</th><th>Valor (R$)</th><th>Responsável</th><th>Telefone</th><th>Rede social</th><th>Endereço</th><th>Ações</th></tr>"+(a.map(l=>`<tr>
-   <td><input class="inp-td" value="${esc(l.nome)}" data-id="${l.id}" data-k="nome"></td>
+   <td><input class="inp-td" style="min-width:220px;font-weight:600" value="${esc(l.nome)}" data-id="${l.id}" data-k="nome"></td>
    <td><select data-id="${l.id}" data-k="org">${OR.map(o=>`<option${o==l.org?" selected":""}>${o}</option>`).join("")}</select></td>
    <td><select data-id="${l.id}" data-k="q">${["Quente","Morno","Frio"].map(q=>`<option${q==l.q?" selected":""}>${q}</option>`).join("")}</select></td>
    <td><select data-id="${l.id}" data-k="st">${ST.map(s=>`<option${s==l.st?" selected":""}>${s}</option>`).join("")}</select></td>
